@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Obicode Premium Playground</title>
+<style>
+body{
+  margin:0;
+  background:#0e1225;
+  font-family:Inter,Arial,sans-serif;
+  color:#e8eefc;
+  display:flex;
+  height:100vh;
+}
+#editor{
+  width:50%;
+  background:#1c2239;
+  padding:16px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+}
+#editor textarea{
+  flex:1;
+  width:100%;
+  background:#0f1428;
+  border:1px solid #2f3b5a;
+  color:#c8d6ff;
+  border-radius:8px;
+  padding:12px;
+  font-family:monospace;
+  font-size:14px;
+}
+#editor button{
+  margin-top:10px;
+  padding:10px;
+  background:#3a7bff;
+  border:0;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+#console{
+  width:50%;
+  background:#0b0f1f;
+  padding:16px;
+  box-sizing:border-box;
+  border-left:2px solid #1f2b45;
+  overflow:auto;
+}
+.output{
+  font-family:monospace;
+  margin-bottom:8px;
+  background:#141a33;
+  padding:8px;
+  border-radius:6px;
+}
+</style>
+</head>
+<body>
+
+<div id="editor">
+<h2 style="margin:0 0 10px 0;">Obicode Premium Playground</h2>
+<textarea id="code">say "Hello from Obicode Premium!"
+repeat 3 times
+  say "Learning Obicode is fun!"
+end
+</textarea>
+<button onclick="runCode()">Run Code</button>
+</div>
+
+<div id="console">
+<h3>Console Output</h3>
+<div id="out"></div>
+</div>
+
+<script>
+function printOut(msg){
+  let box = document.createElement('div');
+  box.className='output';
+  box.innerText=msg;
+  document.getElementById('out').appendChild(box);
+  document.getElementById('console').scrollTop = 999999;
+}
+
+function runCode(){
+  document.getElementById('out').innerHTML='';
+  let code = document.getElementById('code').value.split("\n").map(l=>l.trim());
+  let i=0;
+
+  function step(){
+    if(i>=code.length) return;
+    let line = code[i];
+
+    // SAY
+    if(line.startsWith("say ")){
+      let msg = line.replace("say ","").replace(/\"/g,"");
+      printOut(msg);
+    }
+
+    // REPEAT
+    if(line.startsWith("repeat ")){
+      let parts = line.split(" ");
+      let times = parseInt(parts[1]);
+      let block = [];
+      i++;
+
+      // collect block lines
+      while(i < code.length && code[i] != "end"){
+        block.push(code[i]);
+        i++;
+      }
+
+      // run block N times
+      for(let k=0;k<times;k++){
+        block.forEach(b=>{
+          if(b.startsWith("say ")){
+            let msg=b.replace("say ","").replace(/\"/g,"");
+            printOut(msg);
+          }
+        });
+      }
+    }
+
+    i++;
+    setTimeout(step,50);
+  }
+  step();
+}
+</script>
+
+</body>
+</html>
